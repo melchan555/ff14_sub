@@ -156,24 +156,24 @@ async def add(inter: discord.Interaction, duration: Optional[str]=None, arrive: 
     tid=os.urandom(4).hex()
     t=Task(id=tid, guild_id=inter.guild.id, channel_id=channel_id, user_id=inter.user.id,
            fc=fc_name, boat=boat_name, note=note or "", arrive_utc=arrive_dt.astimezone(timezone.utc).timestamp())
-        embed = discord.Embed(
+    embed = discord.Embed(
             title="✅ 登録しました",
             description="到着時刻になったらこのチャンネルに通知します。",
         )
-        embed.add_field(name="FC", value=f"{t.fc}", inline=True)
-        embed.add_field(name="艦番号", value=f"{t.boat}号", inline=True)
-        embed.add_field(name="到着予定", value=jstfmt(t.arrive_utc), inline=False)
+    embed.add_field(name="FC", value=f"{t.fc}", inline=True)
+    embed.add_field(name="艦番号", value=f"{t.boat}号", inline=True)
+    embed.add_field(name="到着予定", value=jstfmt(t.arrive_utc), inline=False)
         if t.note:
-        embed.add_field(name="メモ", value=t.note, inline=False)
+    embed.add_field(name="メモ", value=t.note, inline=False)
 
-        await inter.followup.send(embed=embed, ephemeral=True)
+    await inter.followup.send(embed=embed, ephemeral=True)
 
 
 @group.command(name="list", description="予約一覧を表示")
 async def list_cmd(inter: discord.Interaction):
     tasks = client.store.by_guild(inter.guild.id)
     if not tasks:
-        return await inter.response.send_message("予約はありません。", ephemeral=True)
+    return await inter.response.send_message("予約はありません。", ephemeral=True)
 
     # 到着が近い順に並べる
     tasks = sorted(tasks, key=lambda t: t.arrive_utc)
