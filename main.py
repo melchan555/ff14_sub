@@ -163,7 +163,7 @@ async def add(inter: discord.Interaction, duration: Optional[str]=None, arrive: 
     embed.add_field(name="FC", value=f"{t.fc}", inline=True)
     embed.add_field(name="艦番号", value=f"{t.boat}号", inline=True)
     embed.add_field(name="到着予定", value=jstfmt(t.arrive_utc), inline=False)
-        if t.note:
+    if t.note:
     embed.add_field(name="メモ", value=t.note, inline=False)
 
     await inter.followup.send(embed=embed, ephemeral=True)
