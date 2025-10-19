@@ -156,15 +156,50 @@ async def add(inter: discord.Interaction, duration: Optional[str]=None, arrive: 
     tid=os.urandom(4).hex()
     t=Task(id=tid, guild_id=inter.guild.id, channel_id=channel_id, user_id=inter.user.id,
            fc=fc_name, boat=boat_name, note=note or "", arrive_utc=arrive_dt.astimezone(timezone.utc).timestamp())
-    client.store.add(t)
-    await inter.followup.send(f"登録しました。\\n到着: **{jstfmt(t.arrive_utc)}** に通知します。", ephemeral=True)
+                  embed = discord.Embed(
+    title="✅ 登録しました",
+    description="到着になったらこのチャンネルにお知らせします。",
+)
+embed.add_field(name="FC", value=f"{t.fc}", inline=True)
+embed.add_field(name="艦番号", value=f"{t.boat}号", inline=True)
+embed.add_field(name="到着予定", value=jstfmt(t.arrive_utc), inline=False)
+if t.note:
+    embed.add_field(name="メモ", value=t.note, inline=False)
+
+await inter.followup.send(embed=embed, ephemeral=True)
 
 @group.command(name="list", description="予約一覧を表示")
 async def list_cmd(inter: discord.Interaction):
-    tasks=client.store.by_guild(inter.guild.id)
-    if not tasks: return await inter.response.send_message("予約はありません。")
-    lines=[f"ID={t.id} | {jstfmt(t.arrive_utc)} | FC:{t.fc or '-'} 艦:{boat_label(t.boat)} | {t.note}" for t in sorted(tasks, key=lambda x:x.arrive_utc)]
-    await inter.response.send_message("```\\n"+ "\\n".join(lines) +"\\n```")
+    tasks = client.store.by_guild(inter.guild.id)
+    if not tasks:
+        return await inter.response.send_message("予約はありません。", ephemeral=True)
+
+    # 到着が近い順に並べる
+    tasks = sorted(tasks, key=lambda t: t.arrive_utc)
+
+    # まずは応答枠を確保（時間がかかってもエラーにしない）
+    await inter.response.defer(ephemeral=True)
+
+    # 1メッセージ10個までの制限があるので分割送信
+    chunk = 10
+    for i in range(0, len(tasks), chunk):
+        embeds = []
+        for t in tasks[i:i+chunk]:
+            e = discord.Embed(
+                title=f"🛳️ {t.fc or '-'} {boat_label(t.boat)}",
+                description="",
+            )
+            e.add_field(name="到着予定", value=jstfmt(t.arrive_utc), inline=False)
+            if t.note:
+                e.add_field(name="メモ", value=t.note, inline=False)
+            embeds.append(e)
+
+        # 一覧はチャンネルに表示
+        await inter.channel.send(embeds=embeds)
+
+    # コマンド実行者には控えめに完了通知
+    await inter.followup.send(f"{len(tasks)}件の予約を表示しました。", ephemeral=True)
+
 
 @group.command(name="cancel", description="予約を取消")
 @app_commands.describe(id="予約ID")
