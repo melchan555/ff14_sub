@@ -168,14 +168,11 @@ if t.note:
 
 await inter.followup.send(embed=embed, ephemeral=True)
 
-await inter.followup.send(embed=embed, ephemeral=True)
-
-
 @group.command(name="list", description="予約一覧を表示")
 async def list_cmd(inter: discord.Interaction):
     tasks = client.store.by_guild(inter.guild.id)
     if not tasks:
-        return await inter.response.send_message("予約はありません。", ephemeral=True)
+　　　　return await inter.response.send_message("予約はありません。", ephemeral=True)
 
     # 到着が近い順に並べる
     tasks = sorted(tasks, key=lambda t: t.arrive_utc)
