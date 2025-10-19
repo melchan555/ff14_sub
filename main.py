@@ -123,7 +123,7 @@ group = app_commands.Group(name="sub", description="潜水艦リマインダー�
 async def help_cmd(inter: discord.Interaction):
     text=(
         "⚓ **潜水艦リマインダー（到着のみ通知）**\\n"
-        "• `/sub add duration:18h10min fc:a boat:1 note:油田`\\n"
+        "• `/sub add duration:18h10min fc:a boat:1 note:メモ`\\n"
         "  - `fc`: a→Alexander, p→Pandemonium（前方一致OK）\\n"
         "  - `duration`: 18h10min / 90min / 30分\\n"
         "• `/sub list` / `/sub cancel id:<ID>` / `/sub defer id:<ID> delta:30min>` / `/sub edit ...`"
@@ -164,7 +164,7 @@ async def add(inter: discord.Interaction, duration: Optional[str]=None, arrive: 
         embed.add_field(name="艦番号", value=f"{t.boat}号", inline=True)
         embed.add_field(name="到着予定", value=jstfmt(t.arrive_utc), inline=False)
         if t.note:
-            embed.add_field(name="メモ", value=t.note, inline=False)
+        embed.add_field(name="メモ", value=t.note, inline=False)
 
         await inter.followup.send(embed=embed, ephemeral=True)
 
