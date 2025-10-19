@@ -168,7 +168,7 @@ if t.note:
 
 await inter.followup.send(embed=embed, ephemeral=True)
 
-    await inter.followup.send(embed=embed, ephemeral=True)
+await inter.followup.send(embed=embed, ephemeral=True)
 
 
 @group.command(name="list", description="予約一覧を表示")
